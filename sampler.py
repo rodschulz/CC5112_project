@@ -39,11 +39,10 @@ def colorChanged(event):
 def saveSamples(event):
 	print('Saving data to ' + dest)
 	with open(dest, 'w') as outfile:
-    		json.dump(data, outfile)
+		json.dump(data, outfile)
 
 ##################################################
 ##### Main app
-
 class Sampler(QWidget):
 	def __init__(self, imgLocation):
 		super(Sampler, self).__init__()
@@ -61,7 +60,7 @@ class Sampler(QWidget):
 		toolbar = 30
 
 		button = QPushButton('Save', self)
-        	button.clicked.connect(saveSamples)
+		button.clicked.connect(saveSamples)
 
 		# create a combobox to select the which will be taken samples
 		combo = QComboBox(self)

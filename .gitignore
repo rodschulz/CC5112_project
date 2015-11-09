@@ -1,2 +1,5 @@
+testInput/*
+testOutput/*
 input/*
 output/*
+*.json
