@@ -53,6 +53,9 @@ class Sampler(QWidget):
 	def initUI(self, imgLocation):
 		global img
 		global color
+		global imgw
+		global imgh
+		global data
 
 		margin = 2
 		toolbar = 30
@@ -76,10 +79,15 @@ class Sampler(QWidget):
 
 		# load the image, generate a label and put the image in it
 		pixmap = QPixmap(imgLocation)
-		pixmap = pixmap.scaled(imgw, imgh, Qt.KeepAspectRatio, transformMode = Qt.SmoothTransformation)
+		pixmap = pixmap.scaled(800, 600, Qt.KeepAspectRatio, transformMode = Qt.SmoothTransformation)
 		img = pixmap.toImage()
 		label = QLabel(self)
 		label.setPixmap(pixmap)
+
+		imgw = pixmap.size().width()
+		imgh = pixmap.size().height()
+		data['width'] = imgw
+		data['height'] = imgh
 
 		# set callbacks and show the image
 		label.mousePressEvent = getPixelData
@@ -110,7 +118,6 @@ def main():
 	global dest
 	name = sys.argv[1][sys.argv[1].rfind('/') + 1:]
 	dest = './output/' + name.replace('.', '_') + '.json'
-	print(dest)
 
 	app = QApplication(sys.argv)
 	splr = Sampler(sys.argv[1])
