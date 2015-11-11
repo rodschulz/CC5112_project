@@ -1,3 +1,8 @@
 input/*
 output/*
 *.json
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
