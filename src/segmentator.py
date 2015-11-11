@@ -14,10 +14,7 @@ import os
 import cv2
 
 stats = {}
-colors = {}
-means = []
-covs = []
-dets = []
+colors = []
 thres = 0
 R = 0; G = 1; B = 2
 
@@ -33,17 +30,11 @@ def classify(pixel):
 ##### initialization method #####
 def init(dataFile):
 	global stats
-	global means
-	global covs
-	global dets
+	global colors
 	
 	with open(dataFile) as statsFile:
 		stats = json.load(statsFile)
-		for key in stats:
-			means.append(stats[key]['mean'])
-			covs.append(stats[key]['covariance'])
-			dets.append(numpy.det(stats[key]['covariance']))
-
+		colors = stats['classes']
 		print('Color stats loaded')
 
 ##################################################
@@ -52,6 +43,9 @@ def segmentate(folder):
 	for f in os.listdir(folder):
 		img = cv2.imread(folder + '/' + f)
 		print('Image read ' + f)
+
+
+		# here has to be implemented the classification part!!
 
 		i = 0
 		for row in img:

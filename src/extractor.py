@@ -29,13 +29,14 @@ def saveStats():
 def calculateStats():
 	for key in data:
 		i = len(stats['classes'])
-		stats['classes'].append({'name': key, 'mean': [], 'covariance':[], 'determinant': 0, 'sampleCount': 0})
+		stats['classes'].append({'name': key, 'mean': [], 'covariance':[], 'determinant': 0, 'inverse': [], 'sampleCount': 0})
 		if not data[key][R] or not data[key][G] or not data[key][B]:
 			continue
 
 		stats['classes'][i]['mean'] = [numpy.mean(data[key][R]), numpy.mean(data[key][G]), numpy.mean(data[key][B])]
 		stats['classes'][i]['covariance'] = numpy.cov(data[key]).tolist()
 		stats['classes'][i]['determinant'] = numpy.linalg.det(stats['classes'][i]['covariance'])
+		stats['classes'][i]['inverse'] = numpy.linalg.inv(stats['classes'][i]['covariance']).tolist()
 		stats['classes'][i]['sampleCount'] = len(data[key][R])
 
 ##################################################
