@@ -14,23 +14,21 @@ import os
 import cv2
 import pdb
 
-cache = {}
-stats = {}
-colors = []
-
 ##################################################
 def loadCache(filename):
-	global cache
-
+	cache = {}
 	try:
 		with open(filename) as cacheFile:
 			cache = json.load(cacheFile)
 			print('Cache loaded')
+
 	except IOError as e:
 		print 'Cache file not found'
 
+	return cache
+
 ##################################################
-def saveCache(filename):
+def saveCache(filename, cache):
 	with open(filename, 'w') as outfile:
 		json.dump(cache, outfile)
 
@@ -68,11 +66,8 @@ def getClass(pixel, colorStats):
 
 	return [colorClass, maxLikelihood]
 
-##################################################
-##### get the color class for each pixel #####
-def classify(pixel, threshold):
-	global cache
-
+#################################################
+def classify(pixel, threshold, colorStats, cache):
 	colorClass = -1
 	maxLikelihood = -1
 
@@ -83,7 +78,7 @@ def classify(pixel, threshold):
 		colorClass = value[0]
 		maxLikelihood = value[1]
 	else:
-		cls = getClass(pixel, colors)
+		cls = getClass(pixel, colorStats)
 		cache[key] = cls
 		colorClass = cls[0]
 		maxLikelihood = cls[1]
@@ -94,28 +89,18 @@ def classify(pixel, threshold):
 	return colorClass
 
 ##################################################
-##### initialization method #####
-def init(filename):
-	global stats
-	global colors
-	
-	with open(filename) as statsFile:
-		stats = json.load(statsFile)
-		colors = stats['classes']
-		print('Color stats loaded')
-
-##################################################
-##### method applying the color segmentation #####
-def segmentate(folder, thres):
+def applySegmentation(folder, threshold, colorStats, cache):
+	# read each image
 	for f in os.listdir(folder):
 		img = cv2.imread(folder + '/' + f)
 		print('Image read ' + f)
 
+		# classify each pixel in a color class
 		for i in range(len(img)):
 			for j in range(len(img[i])):
-				k = classify(img[i][j], thres)
+				k = classify(img[i][j], threshold, colorStats, cache)
 				if k != -1:
-					img[i][j] = numpy.array(colors[k]['mean']).astype(int).tolist()[::-1]
+					img[i][j] = numpy.array(colorStats[k]['mean']).astype(int).tolist()[::-1]
 				else:
 					img[i][j] = [255, 255, 0]
 
@@ -123,14 +108,22 @@ def segmentate(folder, thres):
 		cv2.imwrite('./segmentation/' + f[:f.rfind('.')]+ '.png', img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
 
 ##################################################
-##### main method #####
-def main():
-	init(sys.argv[1])
-	loadCache('./colorCache.json')
-	segmentate(sys.argv[2], float(sys.argv[3]))
-	saveCache('./colorCache.json')
+def loadStats(filename):
+	colorStats = []
+	with open(filename) as statsFile:
+		stats = json.load(statsFile)
+		colorStats = stats['classes']
+		print('Color stats loaded')
+
+	return colorStats
 
 ##################################################
-##### call main method #####
+def main():
+	cache = loadCache('./colorCache.json')
+	colorStats = loadStats(sys.argv[1])
+	applySegmentation(sys.argv[2], float(sys.argv[3]), colorStats, cache)
+	saveCache('./colorCache.json', cache)
+
+##################################################
 if __name__ == '__main__':
 	main()

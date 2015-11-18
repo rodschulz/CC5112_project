@@ -32,13 +32,13 @@ def main():
 	colors = loadStats(sys.argv[1])
 	cube = {}
 	
-	thres = 0.95
+	thres = 0.9
 	R = []
 	G = []
 	B = []
 	col = []
 
-	step = 1
+	step = 5
 	for i in range(0, 255, step):
 		for j in range(0, 255, step):
 			for k in range(0, 255, step):
@@ -65,8 +65,6 @@ def main():
 	ax.set_zlabel('B')
 	plt.show()
 
-
 ##################################################
-##### call main method #####
 if __name__ == '__main__':
 	main()
