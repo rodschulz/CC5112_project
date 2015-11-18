@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pdb
 
-cube = {}
-
 ##################################################
 def loadStats(filename):
 	with open(filename) as statsFile:
@@ -25,8 +23,14 @@ def loadStats(filename):
 		return colors
 
 ##################################################
+def saveCube(filename, cube):
+	with open(filename, 'w') as outfile:
+		json.dump(cube, outfile)
+
+##################################################
 def main():
 	colors = loadStats(sys.argv[1])
+	cube = {}
 	
 	thres = 0.95
 	R = []
@@ -34,7 +38,7 @@ def main():
 	B = []
 	col = []
 
-	step = 10
+	step = 1
 	for i in range(0, 255, step):
 		for j in range(0, 255, step):
 			for k in range(0, 255, step):
@@ -49,7 +53,9 @@ def main():
 					R.append(i)
 					G.append(j)
 					B.append(k)
-					col.append([t / 255 for t in colors[cls[0]]['mean']])
+					col.append([t / 255.0 for t in colors[cls[0]]['mean']])
+
+	saveCube('./cube.json', cube)
 
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection='3d')
