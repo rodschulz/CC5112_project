@@ -14,40 +14,79 @@ import os
 import cv2
 import pdb
 
+cache = {}
 stats = {}
 colors = []
 
 ##################################################
-##### calculate the likelihood #####
-def getLikelihood(pixel, dimension, mean, covariance, covInverse, covDeterminant):
+def loadCache(filename):
+	global cache
+
+	try:
+		with open(filename) as cacheFile:
+			cache = json.load(cacheFile)
+			print('Cache loaded')
+	except IOError as e:
+		print 'Cache file not found'
+
+##################################################
+def saveCache(filename):
+	with open(filename, 'w') as outfile:
+		json.dump(cache, outfile)
+
+##################################################
+def getLikelihood(pixel, mean, covariance, covInverse, sqrtDet):
 	delta = numpy.subtract(pixel, mean)
 	exponent = numpy.dot(delta, covInverse)
 	exponent = numpy.dot(exponent, delta)
-	factor = 1 / (numpy.sqrt(pow(2 * numpy.pi, dimension)) * covDeterminant) 
+	factor = 1 / (15.7496099457 * sqrtDet)
 	return factor * numpy.exp(-0.5 * exponent)
+
+##################################################
+def getTotalProb(pixel, colorStats):
+	total = 0
+	for ck in colorStats:
+		total = total + getLikelihood(pixel, ck['mean'], ck['covariance'], ck['inverse'], ck['sqrtDet'])
+	return total
+
+##################################################
+def getClass(pixel, colorStats):
+	colorClass = -1
+	maxLikelihood = -1
+	classIndex = 0
+
+	# calculate the likelihood for each pixel
+	for color in colorStats:
+		likelihood = getLikelihood(pixel, color['mean'], color['covariance'], color['inverse'], color['sqrtDet'])
+
+		likelihood = likelihood / getTotalProb(pixel, colorStats)
+		if likelihood > maxLikelihood:
+			colorClass = classIndex
+			maxLikelihood = likelihood
+		
+		classIndex = classIndex + 1
+
+	return [colorClass, maxLikelihood]
 
 ##################################################
 ##### get the color class for each pixel #####
 def classify(pixel, threshold):
+	global cache
+
 	colorClass = -1
 	maxLikelihood = -1
-	k = 0
-	for color in colors:
-		likelihood = getLikelihood(pixel, len(pixel), color['mean'], color['covariance'], color['inverse'], color['determinant'])
 
-		#pdb.set_trace()
-
-		acc = 0
-		for ck in colors:
-			acc = acc + getLikelihood(pixel, len(pixel), ck['mean'], ck['covariance'], ck['inverse'], ck['determinant'])
-
-		#pdb.set_trace()
-		#print(likelihood / acc)
-
-		if likelihood > maxLikelihood:
-			colorClass = k
-			maxLikelihood = likelihood
-		k = k + 1
+	# attempt to load from cache if can
+	key = str(pixel)
+	if key in cache:
+		value = cache[key]
+		colorClass = value[0]
+		maxLikelihood = value[1]
+	else:
+		cls = getClass(pixel, colors)
+		cache[key] = cls
+		colorClass = cls[0]
+		maxLikelihood = cls[1]
 
 	if maxLikelihood < threshold:
 		colorClass = -1
@@ -56,11 +95,11 @@ def classify(pixel, threshold):
 
 ##################################################
 ##### initialization method #####
-def init(dataFile):
+def init(filename):
 	global stats
 	global colors
 	
-	with open(dataFile) as statsFile:
+	with open(filename) as statsFile:
 		stats = json.load(statsFile)
 		colors = stats['classes']
 		print('Color stats loaded')
@@ -87,7 +126,9 @@ def segmentate(folder, thres):
 ##### main method #####
 def main():
 	init(sys.argv[1])
+	loadCache('./colorCache.json')
 	segmentate(sys.argv[2], float(sys.argv[3]))
+	saveCache('./colorCache.json')
 
 ##################################################
 ##### call main method #####

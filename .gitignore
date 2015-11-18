@@ -6,3 +6,4 @@ output/*
 *.jpeg
 *.gif
 *.tiff
+*.pyc
