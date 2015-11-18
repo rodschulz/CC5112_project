@@ -54,6 +54,7 @@ def calculateStats():
 		stats['classes'][i]['mean'] = [numpy.mean(data[key][R]), numpy.mean(data[key][G]), numpy.mean(data[key][B])]
 		stats['classes'][i]['covariance'] = numpy.cov(data[key]).tolist()
 		stats['classes'][i]['determinant'] = numpy.linalg.det(stats['classes'][i]['covariance'])
+		stats['classes'][i]['sqrtDet'] = numpy.sqrt(stats['classes'][i]['determinant'])
 		stats['classes'][i]['inverse'] = numpy.linalg.inv(stats['classes'][i]['covariance']).tolist()
 		stats['classes'][i]['sampleCount'] = len(data[key][R])
 
