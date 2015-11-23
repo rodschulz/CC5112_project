@@ -1,21 +1,29 @@
+##################################################
+# This receives 1 argument:
+# - location of the image to be sampled
+# Ex:
+#	python sampler.py ./path/to/image
+#
+##################################################
 import sys
 import json
+import pdb
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-##################################################
-##### Global variables
-imgw = 800 
-imgh = 600
 img = None
 color = None
+flag = {}
 data = {}
-dest = ''
+destination = ''
+imgContainer = None
+
 
 ##################################################
-##### Store the data of the clicked pixel
 def getPixelData(event):
 	global data
+	global img
+	global imgContainer
 
 	x = event.pos().x()
 	y = event.pos().y() 
@@ -26,23 +34,26 @@ def getPixelData(event):
 
 	print('[' +str(x) + ',' + str(y) + '] => [' + str(r) + ', ' + str(g) + ', ' + str(b) + '] (' + color + ')')
 
+	# update image to show the already selected pixels
+	value = qRgb(flag[color][0],flag[color][1], flag[color][2] )
+	img.setPixel(x, y, value)
+	imgContainer.setPixmap(QPixmap.fromImage(img))
+
+
 	data[color].append([x, y, r, g, b])
 
 ##################################################
-##### Register the currently selected color
 def colorChanged(event):
 	global color
 	color = str(event)
 
 ##################################################
-##### Register the currently selected color
 def saveSamples(event):
-	print('Saving data to ' + dest)
-	with open(dest, 'w') as outfile:
+	print('Saving data to ' + destination)
+	with open(destination, 'w') as outfile:
 		json.dump(data, outfile)
 
 ##################################################
-##### Main app
 class Sampler(QWidget):
 	def __init__(self, imgLocation):
 		super(Sampler, self).__init__()
@@ -52,9 +63,8 @@ class Sampler(QWidget):
 	def initUI(self, imgLocation):
 		global img
 		global color
-		global imgw
-		global imgh
 		global data
+		global imgContainer
 
 		margin = 2
 		toolbar = 30
@@ -80,8 +90,8 @@ class Sampler(QWidget):
 		pixmap = QPixmap(imgLocation)
 		pixmap = pixmap.scaled(800, 600, Qt.KeepAspectRatio, transformMode = Qt.SmoothTransformation)
 		img = pixmap.toImage()
-		label = QLabel(self)
-		label.setPixmap(pixmap)
+		imgContainer = QLabel(self)
+		imgContainer.setPixmap(pixmap)
 
 		imgw = pixmap.size().width()
 		imgh = pixmap.size().height()
@@ -89,34 +99,48 @@ class Sampler(QWidget):
 		data['height'] = imgh
 
 		# set callbacks and show the image
-		label.mousePressEvent = getPixelData
+		imgContainer.mousePressEvent = getPixelData
 		combo.activated[str].connect(colorChanged)
 
 		# set sizes and geometry and show
 		combo.move(margin, margin)
 		button.move(combo.size().width(), margin)
-		label.move(margin, toolbar + margin)
+		imgContainer.move(margin, toolbar + margin)
 		
 		self.setGeometry(300, 300, imgw + margin * 2, imgh + margin * 2 + toolbar)
-		self.setWindowTitle('Train image')
+		self.setWindowTitle('Image')
 		self.show()
 
 	def initDict(self):
 		global data
+		global flags
+
 		data["Black"] = []
+		flag["Black"] = [0,0,0]
+
 		data["Blue"] = []
+		flag["Blue"] = [0,0,255]
+
 		data["Green"] = []
+		flag["Green"] = [0,255,0]
+
 		data["Orange"] = []
+		flag["Orange"] = [255,165,0]
+
 		data["Red"] = []
+		flag["Red"] = [255,0,0]
+
 		data["White"] = []
+		flag["White"] = [255,255,255]
+
 		data["Yellow"] = []
+		flag["Yellow"] = [255,255,0]
 
 ##################################################
-##### main method #####
 def main():
-	global dest
+	global destination
 	name = sys.argv[1][sys.argv[1].rfind('/') + 1:]
-	dest = './output/' + name.replace('.', '_') + '.json'
+	destination = './samples/' + name.replace('.', '_') + '.json'
 
 	app = QApplication(sys.argv)
 	splr = Sampler(sys.argv[1])
@@ -124,6 +148,5 @@ def main():
 
 
 ##################################################
-##### call main method #####
 if __name__ == '__main__':
 	main()
