@@ -17,30 +17,44 @@ flag = {}
 data = {}
 destination = ''
 imgContainer = None
-
+p = []
 
 ##################################################
 def getPixelData(event):
 	global data
 	global img
 	global imgContainer
+	global p
 
 	x = event.pos().x()
 	y = event.pos().y() 
-	rgb = QColor(img.pixel(x, y)).toRgb()
-	r = rgb.red()
-	g = rgb.green()
-	b = rgb.blue()
+	p.append([x, y])
 
-	print('[' +str(x) + ',' + str(y) + '] => [' + str(r) + ', ' + str(g) + ', ' + str(b) + '] (' + color + ')')
+	value = qRgb(flag[color][0],flag[color][1], flag[color][2])
 
-	# update image to show the already selected pixels
-	value = qRgb(flag[color][0],flag[color][1], flag[color][2] )
-	img.setPixel(x, y, value)
-	imgContainer.setPixmap(QPixmap.fromImage(img))
+	# if there's 2 points, then add the whole zone to the data
+	if len(p) == 2:
+		xi = min(p[0][0], p[1][0] + 1)
+		xf = max(p[0][0], p[1][0] + 1)
+		yi = min(p[0][1], p[1][1] + 1)
+		yf = max(p[0][1], p[1][1] + 1)
 
+		print('zone [' + str(xi) + ',' + str(yi) + '][' + str(xf) + ',' + str(yf) + ']  => ' + color)
 
-	data[color].append([x, y, r, g, b])
+		for i in range(xi, xf):
+			for j in range(yi, yf):
+				rgb = QColor(img.pixel(i, j)).toRgb()
+				r = rgb.red()
+				g = rgb.green()
+				b = rgb.blue()
+				data[color].append([i, j, r, g, b])
+
+				img.setPixel(i, j, value)
+
+		# update image to show the already selected pixels
+		imgContainer.setPixmap(QPixmap.fromImage(img))
+		# reset list with the zone limits
+		p = []
 
 ##################################################
 def colorChanged(event):
