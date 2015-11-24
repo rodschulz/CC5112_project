@@ -45,6 +45,10 @@ def loadCache(stats):
 def saveCache(cache, stats):
     try:
         filename = getCacheName(stats)
+        folder = filename[:filename.rfind('/') + 1]
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
         with open(filename, 'w') as outfile:
             json.dump(cache, outfile)
             print('Cache saved')
@@ -120,7 +124,7 @@ def applySegmentation(folder, threshold, stats, cache):
     # read each image
     for f in os.listdir(folder):
         img = cv2.imread(folder + '/' + f)
-        print('- Image read ' + f)
+        print('Read image ' + f)
 
         # classify each pixel in a color class
         for i in range(len(img)):

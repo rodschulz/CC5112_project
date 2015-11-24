@@ -8,6 +8,7 @@
 import sys
 import json
 import numpy
+import os
 import pdb
 
 
@@ -63,6 +64,9 @@ def genStats(colors):
 ##################################################
 def saveStats(stats, folder):
     try:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
         destination = folder + 'colorStats_syn.json'
         with open(destination, 'w') as outfile:
             json.dump(stats, outfile)

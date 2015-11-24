@@ -7,6 +7,7 @@
 ##################################################
 import sys
 import json
+import os
 import pdb
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -66,9 +67,17 @@ def colorChanged(event):
 
 ##################################################
 def saveSamples(event):
-    print('Saving data to ' + destination)
-    with open(destination, 'w') as outfile:
-        json.dump(data, outfile)
+    try:
+        folder = destination[:destination.rfind('/') + 1]
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        with open(destination, 'w') as outfile:
+            json.dump(data, outfile)
+            print('Samples saved to ' + destination)
+
+    except IOError as e:
+        print('Unnable to save samples')
 
 
 ##################################################

@@ -25,28 +25,31 @@ B = 2
 
 
 ##################################################
-def saveStats(outputFolder):
-    dest = outputFolder + 'colorStats.json'
-    with open(dest, 'w') as outfile:
+def saveStats(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    destination = folder + 'colorStats.json'
+    with open(destination, 'w') as outfile:
         json.dump(stats, outfile)
-    print('Stats saved to ' + dest)
+    print('Stats saved to ' + destination)
 
 
 ##################################################
-def genSampleImage(outputFolder):
-    rowsPerColor = 30
+def genSampleImage(folder):
+    colorRows = 30
     colors = stats['classes']
     cols = 256
-    rows = len(colors) * rowsPerColor
+    rows = len(colors) * colorRows
     img = numpy.zeros((cols, rows, 3), numpy.uint8)
 
     for i in range(len(colors)):
-        for j in range(i * rowsPerColor, (i + 1) * rowsPerColor):
+        for j in range(i * colorRows, (i + 1) * colorRows):
             for k in range(cols):
                 if len(colors[i]['mean']) > 0:
                     img[k][j] = numpy.array(colors[i]['mean']).astype(int).tolist()[::-1]
 
-    cv2.imwrite(outputFolder + 'sample.png', img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
+    cv2.imwrite(folder + 'sample.png', img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
 
 
 ##################################################
