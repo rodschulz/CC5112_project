@@ -1,5 +1,8 @@
+cache/*
 input/*
 output/*
+stats/*
+*/.idea/*
 *.json
 *.png
 *.jpg

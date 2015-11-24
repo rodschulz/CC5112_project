@@ -13,58 +13,62 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pdb
 
+
 ##################################################
 def loadStats(filename):
-	with open(filename) as statsFile:
-		stats = json.load(statsFile)
-		colors = stats['classes']
-		print('Color stats loaded')
+    with open(filename) as statsFile:
+        stats = json.load(statsFile)
+        colors = stats['classes']
+        print('Color stats loaded')
 
-		return colors
+        return colors
+
 
 ##################################################
 def saveCube(filename, cube):
-	with open(filename, 'w') as outfile:
-		json.dump(cube, outfile)
+    with open(filename, 'w') as outfile:
+        json.dump(cube, outfile)
+
 
 ##################################################
 def main():
-	colors = loadStats(sys.argv[1])
-	cube = {}
-	
-	thres = 0.9
-	R = []
-	G = []
-	B = []
-	col = []
+    colors = loadStats(sys.argv[1])
+    cube = {}
 
-	step = 5
-	for i in range(0, 255, step):
-		for j in range(0, 255, step):
-			for k in range(0, 255, step):
+    thres = 0.9
+    R = []
+    G = []
+    B = []
+    col = []
 
-				pixel = [i, j, k]
-				cls = seg.getClass(pixel, colors)
-				cube[str(pixel)] = cls
+    step = 10
+    for i in range(0, 255, step):
+        for j in range(0, 255, step):
+            for k in range(0, 255, step):
 
-				#pdb.set_trace()
+                pixel = [i, j, k]
+                cls = seg.getClass(pixel, colors)
+                cube[str(pixel)] = cls
 
-				if cls[1] >= thres:
-					R.append(i)
-					G.append(j)
-					B.append(k)
-					col.append([t / 255.0 for t in colors[cls[0]]['mean']])
+                # pdb.set_trace()
 
-	saveCube('./cube.json', cube)
+                if cls[1] >= thres:
+                    R.append(i)
+                    G.append(j)
+                    B.append(k)
+                    col.append([t / 255.0 for t in colors[cls[0]]['mean']])
 
-	fig = plt.figure()
-	ax = fig.add_subplot(111, projection='3d')
-	ax.scatter(R, G, B, c=col, marker='o', s=30, edgecolor='black', linewidth='0', alpha=1.0)
-	ax.set_xlabel('R')
-	ax.set_ylabel('G')
-	ax.set_zlabel('B')
-	plt.show()
+    saveCube('./cube.json', cube)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(R, G, B, c=col, marker='o', s=30, edgecolor='black', linewidth='0', alpha=1.0)
+    ax.set_xlabel('R')
+    ax.set_ylabel('G')
+    ax.set_zlabel('B')
+    plt.show()
+
 
 ##################################################
 if __name__ == '__main__':
-	main()
+    main()
