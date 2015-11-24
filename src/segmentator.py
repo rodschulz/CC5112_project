@@ -13,8 +13,8 @@ import numpy
 import os
 import cv2
 import hashlib
+import time
 import pdb
-
 ##################################################
 from __builtin__ import file
 
@@ -84,7 +84,7 @@ def getClass(pixel, stats):
     for color in stats:
         likelihood = getLikelihood(pixel, color['mean'], color['covariance'], color['inverse'], color['sqrtDet'])
 
-        # likelihood = likelihood / getTotalProb(pixel, colorStats)
+        likelihood = likelihood / getTotalProb(pixel, stats)
         if likelihood > maxLikelihood:
             colorIdx = index
             maxLikelihood = likelihood
@@ -111,8 +111,8 @@ def classify(pixel, threshold, stats, cache):
         colorIdx = cls[0]
         maxLikelihood = cls[1]
 
-    # if maxLikelihood < threshold:
-    #    colorClass = -1
+    if maxLikelihood < threshold:
+        colorClass = -1
 
     return colorIdx
 
@@ -127,15 +127,20 @@ def applySegmentation(folder, threshold, stats, cache):
         print('Read image ' + f)
 
         # classify each pixel in a color class
+        start = time.time()
         for i in range(len(img)):
             for j in range(len(img[i])):
-                k = classify(img[i][j], threshold, stats, cache)
+                # turn over the pixels, since opencv used them backwards
+                px = img[i][j][::-1]
+
+                k = classify(px, threshold, stats, cache)
                 if k != -1:
                     img[i][j] = numpy.array(stats[k]['mean']).astype(int).tolist()[::-1]
                 else:
                     img[i][j] = [255, 255, 0]
 
-        print('\tSaving segmented image')
+        elapsed = '{:3.4f} [s]'.format(time.time() - start)
+        print('\tSaving segmented image (processed in ' + elapsed + ')')
         cv2.imwrite('./segmentation/' + f[:f.rfind('.')] + '.png', img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
 
     print('\nAll images processed')
