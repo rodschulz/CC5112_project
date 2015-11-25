@@ -12,7 +12,6 @@ import numpy
 import os
 import collections
 import cv2
-import pdb
 
 data = collections.OrderedDict()
 stats = {'classes': []}

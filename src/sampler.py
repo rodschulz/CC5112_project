@@ -8,7 +8,6 @@
 import sys
 import json
 import os
-import pdb
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 

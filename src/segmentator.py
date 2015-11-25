@@ -14,10 +14,6 @@ import os
 import cv2
 import hashlib
 import time
-import pdb
-##################################################
-from __builtin__ import file
-
 
 def getCacheName(stats):
     name = hashlib.sha1(str(stats)).hexdigest()
