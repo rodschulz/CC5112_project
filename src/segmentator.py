@@ -1,56 +1,24 @@
 ##################################################
-# This receives 3 arguments:
-# - the file holding the stats for every color
+# This receives:
 # - the folder with the images to process
+# - the file holding the stats for every color
 # - the threshold to use for minimum valid clasification
-# Ex:
-#    python segmentator.py ./path/to/stats.json ./folder/of/imgs/ threshold
 #
 ##################################################
 import sys
-import json
 import numpy
 import os
 import cv2
 import hashlib
 import time
+import utils
 
+
+##################################################
 def getCacheName(stats):
     name = hashlib.sha1(str(stats)).hexdigest()
     filename = './cache/' + name + '.json'
     return filename
-
-
-##################################################
-def loadCache(stats):
-    cache = {}
-    filename = getCacheName(stats)
-
-    try:
-        with open(filename) as cacheFile:
-            cache = json.load(cacheFile)
-            print('Cache loaded')
-
-    except IOError as e:
-        print('Cache file not found')
-
-    return cache
-
-
-##################################################
-def saveCache(cache, stats):
-    try:
-        filename = getCacheName(stats)
-        folder = filename[:filename.rfind('/') + 1]
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        with open(filename, 'w') as outfile:
-            json.dump(cache, outfile)
-            print('Cache saved')
-
-    except IOError as e:
-        print('Cant create cache file (' + filename + ')')
 
 
 ##################################################
@@ -114,12 +82,12 @@ def classify(pixel, threshold, stats, cache):
 
 
 ##################################################
-def applySegmentation(folder, threshold, stats, cache):
+def applySegmentation(src, dest, threshold, stats, cache):
     print('')
 
     # read each image
-    for f in os.listdir(folder):
-        img = cv2.imread(folder + '/' + f)
+    for f in os.listdir(src):
+        img = cv2.imread(src + '/' + f)
         print('Read image ' + f)
 
         # classify each pixel in a color class
@@ -143,29 +111,21 @@ def applySegmentation(folder, threshold, stats, cache):
 
 
 ##################################################
-def loadStats(filename):
-    stats = []
-    try:
-        with open(filename) as statsFile:
-            stats = json.load(statsFile)
-            stats = stats['classes']
-            print('Color stats loaded')
-
-    except IOError as e:
-        print 'Stats file not found'
-
-    return stats
-
-
-##################################################
 def main():
-    stats = loadStats(sys.argv[1])
-    cache = loadCache(stats)
+    src = sys.argv[1]
+    dest = sys.argv[2]
+    stats = utils.loadJson(sys.argv[2])
+    threshold = float(sys.argv[3])
 
     # keep executing only if stats were loaded
-    if len(stats) > 0:
-        applySegmentation(sys.argv[2], float(sys.argv[3]), stats, cache)
-        saveCache(cache, stats)
+    if stats != None:
+        stats = stats['classes']
+        cache = utils.loadJson(getCacheName(stats))
+        if cache == None:
+            cache = {}
+
+        applySegmentation(src, dest, threshold, stats, cache)
+        utils.saveJson(cache, getCacheName(stats))
     else:
         print('No stats available, cant process images')
 
