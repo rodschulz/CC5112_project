@@ -1,8 +1,9 @@
 ##################################################
 # This receives:
-# - the folder with the images to process
-# - the file holding the stats for every color
-# - the threshold to use for minimum valid clasification
+# - source folder with the images to process
+# - destination folder for segmented images
+# - file holding the stats for every color
+# - threshold for minimum valid classification
 #
 ##################################################
 import sys
@@ -12,6 +13,7 @@ import cv2
 import hashlib
 import time
 import utils
+import shutil
 
 
 ##################################################
@@ -85,6 +87,10 @@ def classify(pixel, threshold, stats, cache):
 def applySegmentation(src, dest, threshold, stats, cache):
     print('')
 
+    # create destination folder if it doesn't exists
+    if not os.path.exists(dest):
+        os.makedirs(dest)
+
     # read each image
     for f in os.listdir(src):
         img = cv2.imread(src + '/' + f)
@@ -104,8 +110,10 @@ def applySegmentation(src, dest, threshold, stats, cache):
                     img[i][j] = [255, 255, 0]
 
         elapsed = '{:3.4f} [s]'.format(time.time() - start)
-        print('\tSaving segmented image (processed in ' + elapsed + ')')
-        cv2.imwrite('./segmentation/' + f[:f.rfind('.')] + '.png', img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
+        filename = dest + f[:f.rfind('.')] + '.png'
+        print('\tSaving segmented image to ' + filename + ' (processed in ' + elapsed + ')')
+
+        cv2.imwrite(filename, img, [cv2.cv.CV_IMWRITE_PNG_COMPRESSION, 9])
 
     print('\nAll images processed')
 
@@ -114,8 +122,8 @@ def applySegmentation(src, dest, threshold, stats, cache):
 def main():
     src = sys.argv[1]
     dest = sys.argv[2]
-    stats = utils.loadJson(sys.argv[2])
-    threshold = float(sys.argv[3])
+    stats = utils.loadJson(sys.argv[3])
+    threshold = float(sys.argv[4])
 
     # keep executing only if stats were loaded
     if stats != None:
