@@ -13,7 +13,6 @@ import cv2
 import hashlib
 import time
 import utils
-import shutil
 
 
 ##################################################

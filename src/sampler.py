@@ -8,6 +8,7 @@
 import sys
 import json
 import os
+import utils
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -157,7 +158,7 @@ class Sampler(QWidget):
 ##################################################
 def main():
     name = sys.argv[1][sys.argv[1].rfind('/') + 1:]
-    dest = './samples/' + name.replace('.', '_') + '.json'
+    dest = './samples/' + utils.getMarksName(name)
     src = sys.argv[1]
 
     app = QApplication(sys.argv)

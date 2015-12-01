@@ -15,7 +15,7 @@ import random
 
 ##################################################
 def getColorSet():
-    colors = ['black', 'white', 'red', 'blue', 'green', 'yellow']
+    colors = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow']
     return colors
 
 
@@ -26,20 +26,20 @@ def genStats(colors):
     for color in colors:
         sts = {}
         mean = 0
-        var = 650
+        var = 750
         covariance = [[var, 0, 0], [0, var, 0], [0, 0, var]]
 
-        if color == 'black':
+        if color == 'Black':
             mean = [0, 0, 0]
-        elif color == 'white':
+        elif color == 'White':
             mean = [255, 255, 255]
-        elif color == 'red':
+        elif color == 'Red':
             mean = [255, 0, 0]
-        elif color == 'blue':
+        elif color == 'Blue':
             mean = [0, 0, 255]
-        elif color == 'green':
+        elif color == 'Green':
             mean = [0, 255, 0]
-        elif color == 'yellow':
+        elif color == 'Yellow':
             mean = [255, 255, 0]
 
         sts['name'] = color
@@ -64,35 +64,35 @@ def genRandomStats(colors):
         sts = {}
 
         mean = []
-        if color == 'black':
+        if color == 'Black':
             mu = 20
             sigma = 30
             mean = [getRandom(mu, sigma), getRandom(mu, sigma), getRandom(mu, sigma)]
 
-        elif color == 'white':
+        elif color == 'White':
             mu = 235
             sigma = 30
             mean = [getRandom(mu, sigma), getRandom(mu, sigma), getRandom(mu, sigma)]
 
-        elif color == 'red':
+        elif color == 'Red':
             mu1 = 220
             mu2 = 20
             sigma = 30
             mean = [getRandom(mu1, sigma), getRandom(mu2, sigma), getRandom(mu2, sigma)]
 
-        elif color == 'blue':
+        elif color == 'Blue':
             mu1 = 220
             mu2 = 20
             sigma = 30
             mean = [getRandom(mu2, sigma), getRandom(mu2, sigma), getRandom(mu1, sigma)]
 
-        elif color == 'green':
+        elif color == 'Green':
             mu1 = 220
             mu2 = 20
             sigma = 30
             mean = [getRandom(mu2, sigma), getRandom(mu1, sigma), getRandom(mu2, sigma)]
 
-        elif color == 'yellow':
+        elif color == 'Yellow':
             mean = [255, 255, 0]
 
             mu1 = 220

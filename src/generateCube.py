@@ -1,13 +1,11 @@
 ##################################################
-# This receives 1 argument:
+# This receives:
 # - the file holding the stats for every color
-# Ex:
-#	python cube.py ./path/to/stats.json
 #
 ##################################################
 import sys
 import json
-import segmentator as seg
+import segmentImages as seg
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 

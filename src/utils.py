@@ -110,3 +110,10 @@ def calculateError(statsFilename, marksFilename, imageFilename):
         ratio = float(good) / float(total)
 
     return ratio
+
+
+##################################################
+# Returns the name of the marks associated to the given image filename
+#
+def getMarksName(imageFilename):
+    return imageFilename.replace('.', '_') + '.json'

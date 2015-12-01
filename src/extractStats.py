@@ -1,9 +1,7 @@
 ##################################################
-# This receives 2 argument:
+# This receives:
 # - folder where are stored the json with samples from each image.
 # - output folder
-# Ex:
-#    python extractor.py ./folder/to/data/ ./output/folder/
 #
 ##################################################
 import sys
