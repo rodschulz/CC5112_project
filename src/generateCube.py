@@ -5,7 +5,7 @@
 ##################################################
 import sys
 import json
-import segmentImages as seg
+import segmentator as seg
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 

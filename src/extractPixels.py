@@ -10,14 +10,6 @@ import utils
 
 
 ##################################################
-def extractRGB(array):
-    data = []
-    for row in array:
-        data.append(row[2:5])
-    return data
-
-
-##################################################
 def main():
     src = sys.argv[1]
     dest = sys.argv[2]
@@ -32,7 +24,8 @@ def main():
                 if not key in pixels:
                     pixels[key] = []
 
-                pixels[key] = pixels[key] + extractRGB(data[key])
+                extracted = utils.extractRGB(data[key])
+                pixels[key] = pixels[key] + extracted
 
     for key in pixels:
         print('Extracted ' + str(len(pixels[key])) + ' pixels for ' + key)

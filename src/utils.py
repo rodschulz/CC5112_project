@@ -1,6 +1,11 @@
 import json
 import os
 import cv2
+import numpy
+
+R = 0
+G = 1
+B = 2
 
 
 ##################################################
@@ -117,3 +122,59 @@ def calculateError(statsFilename, marksFilename, imageFilename):
 #
 def getMarksName(imageFilename):
     return imageFilename.replace('.', '_') + '.json'
+
+
+##################################################
+# Calculate the stats for the given data array
+#
+def calculateStats(key, data):
+    stats = {}
+
+    stats['name'] = key
+    stats['mean'] = [numpy.mean(data[R]), numpy.mean(data[G]), numpy.mean(data[B])]
+    stats['covariance'] = numpy.cov(data).tolist()
+    stats['determinant'] = numpy.linalg.det(stats['covariance'])
+    stats['sqrtDet'] = numpy.sqrt(stats['determinant'])
+    stats['inverse'] = numpy.linalg.inv(stats['covariance']).tolist()
+    stats['sampleCount'] = len(data[R])
+
+    return stats
+
+
+##################################################
+# Extract an RGB array from the given array holding the samples
+#
+def extractRGB(array):
+    data = []
+    for row in array:
+        data.append(row[2:5])
+    return data
+
+
+##################################################
+# An array from a list of triples to 3 columns of data
+#
+def convertToCols(array):
+    data = [[], [], []]
+    for row in array:
+        data[R].append(row[R])
+        data[G].append(row[G])
+        data[B].append(row[B])
+    return data
+
+
+##################################################
+# Calculates the mahalanobis distance
+#
+def mahalanobis(mean, covInv, pixel):
+    delta = numpy.subtract(pixel, mean)
+    m = numpy.dot(covInv, delta)
+    m = numpy.dot(delta, m)
+    return numpy.sqrt(m)
+
+##################################################
+# Generates an empty stats dictionary
+#
+# def emptyStats():
+#     stats = {'classes': []}
+#     stats['classes'] = []
