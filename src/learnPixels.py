@@ -47,16 +47,17 @@ def classify(data, threshold, stats, cache):
     classification = []
     for n in range(len(data[utils.R])):
         pixel = [data[utils.R][n], data[utils.G][n], data[utils.B][n]]
-        classification.append(segmentator.classify(pixel, threshold, stats, cache))
+        cls = segmentator.classify(pixel, threshold, stats, cache)
+        classification.append(stats[cls]['name'])
 
     return classification
 
 
 ##################################################
-def classificationError(data):
+def classificationError(data, target):
     error = 0;
     for d in data:
-        error += int(d == -1)
+        error += int(d != target)
 
     return error
 
@@ -121,18 +122,22 @@ def main():
         cache = {}
         for key in samples:
             classification = classify(samples[key]['val'], thres, stats['classes'], cache)
-            error += classificationError(classification)
+            error += classificationError(classification, key)
+        print('Error: ' + str(error))
 
         if error < minError:
             minError = error
             bestSamples = samples
             bestStats = stats
 
-        print('Classification error: ' + str(minError))
         if minError == 0:
             break
 
-    utils.saveJson(bestStats, dest + 'colorStats.json')
+    print('Min error: ' + str(minError))
+    print('Saving')
+    utils.saveJson(bestStats, dest + 'learnedStats.json')
+
+    print('Finished')
 
 
 ##################################################
