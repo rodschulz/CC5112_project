@@ -98,13 +98,15 @@ def main():
     dest = sys.argv[2]
     attempts = 10
     ratio = 0.5
-    thres = 0.9
+    thres = 0.95
 
     pixels = utils.loadJson(src)
     bestSamples = {}
     bestStats = {'classes': []}
 
-    minError = 1e10000
+    minVal = [1e10000]
+    minTrain = []
+    minTest = []
     for n in range(attempts):
         print('** Attempt ' + str(n))
         samples = {}
@@ -118,24 +120,53 @@ def main():
             samples[key] = sets
 
         # calculate the classification error
-        error = 0
+        totalTrain = 0.0
+        totalVal = 0.0
+        totalTest = 0.0
+        errTrain = 0
+        errVal = 0
+        errTest = 0
         cache = {}
         for key in samples:
-            classification = classify(samples[key]['val'], thres, stats['classes'], cache)
-            error += classificationError(classification, key)
-        print('Error: ' + str(error))
+            clsTrain = classify(samples[key]['train'], thres, stats['classes'], cache)
+            errTrain += classificationError(clsTrain, key)
+            totalTrain += len(samples[key]['train'][utils.R])
 
-        if error < minError:
-            minError = error
+            clsVal = classify(samples[key]['val'], thres, stats['classes'], cache)
+            errVal += classificationError(clsVal, key)
+            totalVal += len(samples[key]['val'][utils.R])
+
+            clsTest = classify(samples[key]['test'], thres, stats['classes'], cache)
+            errTest += classificationError(clsTest, key)
+            totalTest += len(samples[key]['test'][utils.R])
+
+        print('\tError train: \t' + str(errTrain) + '\t' + str(errTrain / totalTrain))
+        print('\tError val: \t' + str(errVal) + '\t' + str(errVal / totalVal))
+        print('\tError test: \t' + str(errTest) + '\t' + str(errTest / totalTest))
+
+        if errVal < minVal[0]:
+            minVal = [errVal, totalVal]
+            minTrain = [errTrain, totalTrain]
+            minTest = [errTest, totalTest]
             bestSamples = samples
             bestStats = stats
 
-        if minError == 0:
+        if minVal[0] == 0:
             break
 
-    print('Min error: ' + str(minError))
-    print('Saving')
+    print('Min error')
+    print('\ttrain: \t' + str(minTrain[0]) + '\t' + str(minTrain[0] / minTrain[1]))
+    print('\tval: \t' + str(minVal[0]) + '\t' + str(minVal[0] / minVal[1]))
+    print('\ttest: \t' + str(minTest[0]) + '\t' + str(minTest[0] / minTest[1]))
+
+    bestSamples = {'samples': bestSamples, 'errors': {}}
+    bestSamples['errors']['train'] = minTrain
+    bestSamples['errors']['val'] = minVal
+    bestSamples['errors']['test'] = minTest
+
+    print('Saving data')
     utils.saveJson(bestStats, dest + 'learnedStats.json')
+    utils.saveJson(bestSamples, dest + 'learnedSamples.json')
 
     print('Finished')
 
